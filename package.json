@@ -12,6 +12,8 @@
     "typings": "^2.0.0"
   },
   "scripts": {
+    "prestart": "rm -rf build",
+    "start": "tsc && node build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
