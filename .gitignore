@@ -39,3 +39,4 @@ jspm_packages
 #Since we do Typescript, we only checkin *.ts files
 *.js
 build/
+typings/
