@@ -1,0 +1,28 @@
+{
+  "name": "spock",
+  "version": "1.0.0",
+  "description": "Everything has to be logical and correct",
+  "main": "index.js",
+  "dependencies": {
+    "typescript": "^2.0.10",
+    "typings": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.0.10",
+    "typings": "^2.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schultyy/spock.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/schultyy/spock/issues"
+  },
+  "homepage": "https://github.com/schultyy/spock#readme"
+}
