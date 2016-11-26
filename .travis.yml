@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+- '6.9'
+- '7.2'
+cache:
+  directories:
+  - node_modules
+before_script:
+  - npm install -g typescript
+  - npm install -g typings
+  - typings install
+script:
+  - npm test
