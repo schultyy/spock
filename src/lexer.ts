@@ -1,6 +1,14 @@
-export const LBRACKET = 'LBRACKET';
-export const RBRACKET = 'RBRACKET';
-export const EOF = 'EOF';
+
+export enum TokenType {
+  LBRACKET,
+  RBRACKET,
+  IDENTIFIER,
+  COLON,
+  SEMICOLON,
+  COLOR,
+  NUMBER,
+  EOF
+}
 
 export class Lexer {
   stylesheet: string;
@@ -12,38 +20,83 @@ export class Lexer {
   }
 
   static isChar(ch: string) : boolean {
-    return !!ch.match(/[a-z]/i);
+    return !!ch.match(/[a-z]/i) || ch === '-';
   }
 
   static isWhitespace(ch: string) : boolean {
     return !!ch.match(/\w/);
   }
 
-  nextToken() : Token {
-    const charStream = this.stylesheet.split(' ');
+  static isNumber(ch: string) : boolean {
+    return !!ch.match(/\d/);
+  }
 
-    while(this.currentStreamPosition < charStream.length) {
-      let currentChar = charStream[this.currentStreamPosition++];
+  nextToken() : Token {
+    let stringBuffer = '';
+
+    while(this.currentStreamPosition < this.stylesheet.length) {
+      const currentChar = this.stylesheet[this.currentStreamPosition];
+      this.currentStreamPosition++;
+      const currentCharLookahead = this.stylesheet[this.currentStreamPosition];
       switch(currentChar) {
         case '{':
-         return new Token(LBRACKET, '{');
+         return new Token(TokenType.LBRACKET, '{');
         case '}':
-          return new Token(RBRACKET, '}');
+          return new Token(TokenType.RBRACKET, '}');
+        case ':':
+          return new Token(TokenType.COLON, ':');
+        case ';':
+          return new Token(TokenType.SEMICOLON, ';');
         default:
           if(Lexer.isChar(currentChar)) {
-          } else if (Lexer.isWhitespace(currentChar)) {
+            stringBuffer += currentChar;
+            if(!Lexer.isChar(currentCharLookahead)) {
+              const newToken = new Token(TokenType.IDENTIFIER, stringBuffer);
+              stringBuffer = '';
+              return newToken;
+            }
+          }
+          else if (currentChar === '#') {
+            return this.consumeColor();
+          }
+          else if (Lexer.isNumber(currentChar)) {
+            return this.consumeNumber(currentChar);
+          }
+          else if (Lexer.isWhitespace(currentChar)) {
+            continue;
           }
       }
     }
-    return new Token(EOF, "<<EOF>>");
+    return new Token(TokenType.EOF, "<<EOF>>");
+  }
+
+  private consumeNumber(currentChar: string) : Token {
+    //TODO: Validate number and measurement like (px, em, etc.)
+    //We pass in the currentChar right now, it's a not so nice solution, but should work for now
+    let stringBuffer = currentChar;
+    while(this.stylesheet[this.currentStreamPosition] !== ';') {
+      stringBuffer += this.stylesheet[this.currentStreamPosition];
+      this.currentStreamPosition++;
+    }
+    return new Token(TokenType.NUMBER, stringBuffer);
+  }
+
+  private consumeColor() : Token {
+    //TODO: valid chars: a-f, 0-9
+    let stringBuffer = '#';
+    while(this.stylesheet[this.currentStreamPosition] !== ';') {
+      stringBuffer += this.stylesheet[this.currentStreamPosition];
+      this.currentStreamPosition++;
+    }
+    return new Token(TokenType.COLOR, stringBuffer);
   }
 }
 
 export class Token {
-  type: string;
+  type: TokenType;
   value: string;
 
-  constructor(type, value) {
+  constructor(type: TokenType, value: string) {
     this.type = type;
     this.value = value;
   }
