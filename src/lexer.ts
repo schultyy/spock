@@ -3,6 +3,7 @@ export enum TokenType {
   LBRACKET,
   RBRACKET,
   IDENTIFIER,
+  CLASSNAME,
   COLON,
   SEMICOLON,
   COLOR,
@@ -56,6 +57,9 @@ export class Lexer {
               return newToken;
             }
           }
+          else if(currentChar === '.') {
+            return this.consumeClassName();
+          }
           else if (currentChar === '#') {
             return this.consumeColor();
           }
@@ -68,6 +72,15 @@ export class Lexer {
       }
     }
     return new Token(TokenType.EOF, "<<EOF>>");
+  }
+
+  private consumeClassName() : Token {
+    let stringBuffer = '.';
+    while(this.stylesheet[this.currentStreamPosition] !== ' ') {
+      stringBuffer += this.stylesheet[this.currentStreamPosition];
+      this.currentStreamPosition++;
+    }
+    return new Token(TokenType.CLASSNAME, stringBuffer);
   }
 
   private consumeNumber(currentChar: string) : Token {

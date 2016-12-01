@@ -26,6 +26,9 @@ export class Parser {
     if(value === 'body') {
       return RuleType.Tag;
     }
+    else if(value.startsWith('.')) {
+      return RuleType.Class;
+    }
     return RuleType.Undefined;
   }
   static assert(actualToken: Token, expectedTokenType: TokenType) {
@@ -38,16 +41,25 @@ export class Parser {
 
     throw `Expected ${expectedTokenName}, got ${actualTokenName} ${actualToken.value}`;
   }
-  static fail(invalidToken: Token) {
+  static fail(invalidToken: Token, expectedTokenTypes: Array<TokenType> | null) {
     const tokenName = TokenType[invalidToken.type];
-
-    throw `Encountered unexpected token ${tokenName} ${invalidToken.value}`;
+    if(expectedTokenTypes) {
+      throw `Expected ${expectedTokenTypes.map(t => TokenType[t]).join(',')} got ${tokenName}`;
+    } else {
+      throw `Encountered unexpected token ${tokenName} ${invalidToken.value}`;
+    }
+  }
+  static cleanName(name: string) : string {
+    return name.replace('.', '');
   }
   parse(program: string) : AST {
     const lexer = new Lexer(program);
 
     const selector = lexer.nextToken();
-    Parser.assert(selector, TokenType.IDENTIFIER);
+    if(selector.type !== TokenType.IDENTIFIER && selector.type !== TokenType.CLASSNAME) {
+      Parser.fail(selector, [TokenType.IDENTIFIER, TokenType.CLASSNAME]);
+    }
+
     Parser.assert(lexer.nextToken(), TokenType.LBRACKET);
 
     //declarations
@@ -70,14 +82,14 @@ export class Parser {
         }
         else {
           //Bail out, we didn't expect this to happen
-          Parser.fail(potentialValue);
+          Parser.fail(potentialValue, null);
         }
       }
     }
 
     let ruleNode = {
       type: Parser.getRuleType(selector.value),
-      name: selector.value,
+      name: Parser.cleanName(selector.value),
       declarations: declarations
     };
 
@@ -87,5 +99,6 @@ export class Parser {
 
 export enum RuleType {
   Tag,
+  Class,
   Undefined
 };

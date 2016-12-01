@@ -58,4 +58,34 @@ describe('Parser', function() {
       });
     });
   });
+
+  describe('Class Rule', function() {
+    const classRule = `.active {
+      background-color: #CCCCCC;
+      margin: 2px;
+    }`;
+    const ast = parser.parse(classRule);
+
+    describe('AST', function() {
+      it('has type Stylesheet', function() {
+        expect(ast.type).to.eq('Stylesheet');
+      });
+
+      it('has a list of Rules', function() {
+        expect(ast.rules.length).to.eq(1);
+      });
+
+      describe('Rule', function() {
+        const rule = ast.rules[0];
+
+        it('has type "Class Rule"', function() {
+          expect(rule.type).to.eq(RuleType.Class);
+        });
+
+        it('has name "active"', function() {
+          expect(rule.name).to.eq('active');
+        });
+      });
+    });
+  });
 });
